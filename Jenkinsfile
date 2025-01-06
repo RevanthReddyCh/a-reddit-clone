@@ -6,13 +6,13 @@ pipeline {
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
-        APP_NAME = "reddit-clone-pipeline"
+        APP_NAME = "k8s"
         RELEASE = "1.0.0"
-        DOCKER_USER = "ashfaque9x"
-        DOCKER_PASS = 'dockerhub'
+        DOCKER_USER = "revanthreddych"
+        DOCKER_PASS = 'docker-credentials'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+	//JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
     stages {
         stage('clean workspace') {
@@ -22,21 +22,21 @@ pipeline {
         }
         stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://github.com/Ashfaque-9x/a-reddit-clone.git'
+                git branch: 'main', url: 'https://github.com/RevanthReddyCh/a-reddit-clone.git'
             }
         }
         stage("Sonarqube Analysis") {
             steps {
-                withSonarQubeEnv('SonarQube-Server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Reddit-Clone-CI \
-                    -Dsonar.projectKey=Reddit-Clone-CI'''
+                withSonarQubeEnv('sonar-server') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=k8s \
+                    -Dsonar.projectKey=k8s'''
                 }
             }
         }
         stage("Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
                 }
             }
         }
@@ -50,19 +50,19 @@ pipeline {
                 sh "trivy fs . > trivyfs.txt"
              }
          }
-	 stage("Build & Push Docker Image") {
+	 /*stage("Build & Push Docker Image") {
              steps {
                  script {
                      docker.withRegistry('',DOCKER_PASS) {
                          docker_image = docker.build "${IMAGE_NAME}"
                      }
-                     docker.withRegistry('',DOCKER_PASS) {
+                     docker.withRegistry('',docker-credentials) {
                          docker_image.push("${IMAGE_TAG}")
                          docker_image.push('latest')
                      }
                  }
              }
-         }
+         }*/
 	 stage("Trivy Image Scan") {
              steps {
                  script {
@@ -70,15 +70,15 @@ pipeline {
                  }
              }
          }
-	 stage ('Cleanup Artifacts') {
+	/* stage ('Cleanup Artifacts') {
              steps {
                  script {
                       sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
                       sh "docker rmi ${IMAGE_NAME}:latest"
                  }
              }
-         }
-	 stage("Trigger CD Pipeline") {
+         }*/
+	 /*stage("Trigger CD Pipeline") {
             steps {
                 script {
                     sh "curl -v -k --user clouduser:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-65-2-187-142.ap-south-1.compute.amazonaws.com:8080/job/Reddit-Clone-CD/buildWithParameters?token=gitops-token'"
@@ -96,6 +96,6 @@ pipeline {
                to: 'ashfaque.s510@gmail.com',                              
                attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
         }
-     }
+     }*/
     
 }
