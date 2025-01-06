@@ -86,7 +86,7 @@ pipeline {
             }
         }*/
     }
-    post {
+    /*post {
         always {
             emailext attachLog: true,
                 subject: "'${currentBuild.result}'",
@@ -96,5 +96,5 @@ pipeline {
                 to: 'ashfaque.s510@gmail.com',
                 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
         }
-    }
+    }*/
 }
