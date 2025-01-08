@@ -9,7 +9,7 @@ pipeline {
         APP_NAME = "k8s"
         RELEASE = "1.0.0"
         DOCKER_USER = "revanthreddych"
-        DOCKER_PASS = 'docker-credentials'
+        DOCKER_PASS = 'docker-creds'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         // JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")  // Uncomment when needed
